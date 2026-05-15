@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EMI Calculator — AI Sure Finance</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--bg:#F5F5F7;--card:#fff;--dark:#1D1D1F;--green:#2A9D5C;--green-pale:#E8F8F0;--green-mid:#B7E4CC;--muted:#86868B;--border:#D2D2D7;--surface:#F5F5F7;--mid:#AEAEB2;--lborder:#E5E5EA;}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--dark);min-height:100vh;}
+header{background:var(--dark);padding:1.1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.hdr-left{display:flex;align-items:center;gap:11px;}
+.hdr-logo{width:34px;height:34px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.hdr-logo svg{width:18px;height:18px;}
+.hdr-brand{color:#F5F5F7;font-size:15px;font-weight:500;}
+.hdr-tagline{color:var(--muted);font-size:10px;letter-spacing:0.5px;margin-top:1px;}
+.hdr-badge{background:#2A2A2C;color:var(--muted);font-size:11px;padding:4px 12px;border-radius:99px;border:0.5px solid #3A3A3C;}
+.hero{background:var(--dark);padding:1.75rem 2rem 3rem;text-align:center;color:#F5F5F7;}
+.hero h1{font-size:clamp(24px,4vw,36px);font-weight:600;letter-spacing:-0.8px;margin-bottom:7px;}
+.hero p{font-size:13px;color:var(--muted);max-width:400px;margin:0 auto 1rem;line-height:1.6;}
+.hero-pills{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.hero-pill{background:#2A2A2C;color:#A1A1A6;font-size:11px;padding:5px 13px;border-radius:99px;border:0.5px solid #3A3A3C;}
+.container{max-width:920px;margin:-1.75rem auto 0;padding:0 1.25rem 4rem;position:relative;z-index:10;}
+.cust-card{background:var(--card);border-radius:16px;border:0.5px solid var(--border);padding:1.25rem;margin-bottom:1rem;}
+.ctitle{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:1rem;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.field{margin-bottom:0.9rem;}
+.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:500;}
+.ibox{width:100%;padding:10px 12px;border:0.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;font-weight:500;color:var(--dark);background:var(--surface);outline:none;-moz-appearance:textfield;transition:border-color 0.15s,background 0.15s;}
+.ibox::-webkit-outer-spin-button,.ibox::-webkit-inner-spin-button{-webkit-appearance:none;}
+.ibox:focus{border-color:var(--green);background:#fff;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:start;}
+.card{background:var(--card);border-radius:16px;border:0.5px solid var(--border);padding:1.25rem;}
+.srow{margin-bottom:0.9rem;}
+.slbl{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.slbl-txt{font-size:12px;color:var(--muted);font-weight:500;}
+.schip{font-size:12px;font-weight:500;color:var(--dark);background:var(--surface);padding:3px 9px;border-radius:7px;border:0.5px solid var(--border);min-width:68px;text-align:center;}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:3px;outline:none;cursor:pointer;background:var(--lborder);}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;background:#fff;border:2px solid var(--green);cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.1);}
+input[type=range]::-moz-range-thumb{width:17px;height:17px;border-radius:50%;background:#fff;border:2px solid var(--green);cursor:pointer;}
+.sec-div{display:flex;align-items:center;gap:8px;font-size:10px;font-weight:600;color:var(--mid);letter-spacing:1px;text-transform:uppercase;margin:0.6rem 0;}
+.sec-div::before,.sec-div::after{content:'';flex:1;height:0.5px;background:var(--lborder);}
+.trow{display:flex;gap:7px;margin-bottom:0.9rem;}
+.tbtn{flex:1;padding:9px 0;border:0.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;background:var(--surface);color:var(--muted);transition:all 0.15s;}
+.tbtn.active{background:var(--green);color:#fff;border-color:var(--green);}
+.tbtn:hover:not(.active){border-color:var(--green);color:var(--dark);}
+.emi-hero{background:var(--dark);border-radius:12px;padding:1.1rem;text-align:center;margin-bottom:0.9rem;}
+.emi-lbl{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;}
+.emi-num{font-size:30px;font-weight:600;color:#F5F5F7;letter-spacing:-0.8px;}
+.emi-sub{font-size:11px;color:#636366;margin-top:3px;}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:0.9rem;}
+.stat{background:var(--surface);border-radius:9px;padding:10px 12px;}
+.stat-lbl{font-size:10px;color:var(--mid);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:3px;}
+.stat-val{font-size:15px;font-weight:500;color:var(--dark);}
+.count-row{display:flex;align-items:center;justify-content:space-between;background:var(--green-pale);border-radius:9px;padding:9px 12px;margin-bottom:0.9rem;border:0.5px solid var(--green-mid);}
+.count-lbl{font-size:12px;color:#1A7A42;font-weight:500;}
+.count-val{font-size:13px;font-weight:500;color:#1A7A42;}
+.bsec{margin-bottom:0.65rem;}
+.bmeta{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px;}
+.bdot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:middle;}
+.bbg{height:5px;border-radius:99px;background:var(--lborder);overflow:hidden;}
+.bfill{height:100%;border-radius:99px;transition:width 0.4s ease;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead th{font-size:10px;font-weight:600;color:var(--mid);text-transform:uppercase;letter-spacing:0.4px;padding:6px 7px;border-bottom:0.5px solid var(--lborder);text-align:left;}
+tbody td{padding:8px 7px;border-bottom:0.5px solid var(--surface);color:var(--dark);}
+tbody tr:last-child td{border-bottom:none;}
+.badge{font-size:10px;font-weight:500;padding:2px 8px;border-radius:99px;}
+.b-up{background:var(--green-pale);color:#1A7A42;}
+.b-pend{background:var(--surface);color:var(--mid);border:0.5px solid var(--lborder);}
+.wa-section{background:var(--green-pale);border-radius:16px;padding:1.25rem;border:0.5px solid var(--green-mid);margin-top:1rem;}
+.wa-title{font-size:12px;font-weight:600;color:#1A7A42;margin-bottom:10px;}
+.wa-preview{background:#fff;border-radius:10px;padding:13px;font-size:12px;color:var(--dark);line-height:1.75;margin-bottom:12px;border:0.5px solid var(--green-mid);white-space:pre-line;font-family:'Courier New',monospace;}
+.btn-wa{width:100%;padding:13px;background:var(--green);color:#fff;border:none;border-radius:12px;font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.15s;}
+.btn-wa:hover{opacity:0.88;}
+.btn-dl{width:100%;padding:12px;background:var(--dark);color:#F5F5F7;border:none;border-radius:12px;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:7px;transition:opacity 0.15s;}
+.btn-dl:hover{opacity:0.85;}
+footer{background:var(--dark);color:var(--muted);text-align:center;padding:1.5rem;font-size:12px;margin-top:2rem;}
+footer strong{color:#F5F5F7;}
+@media(max-width:640px){.grid2{grid-template-columns:1fr;}.two-col{grid-template-columns:1fr 1fr;}.hero{padding:1.5rem 1.25rem 2.5rem;}.container{padding:0 0.75rem 3rem;}}
+</style>
+</head>
+<body>
+<header>
+  <div class="hdr-left">
+    <div class="hdr-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    </div>
+    <div>
+      <div class="hdr-brand">AI Sure Finance</div>
+      <div class="hdr-tagline">POWERED BY AI SURE POWER</div>
+    </div>
+  </div>
+  <div class="hdr-badge">EMI Calculator</div>
+</header>
+<div class="hero">
+  <h1>Smart Battery Financing</h1>
+  <p>Calculate EMI instantly and share directly on WhatsApp — zero hidden charges</p>
+  <div class="hero-pills">
+    <span class="hero-pill">⚡ Fast Approval</span>
+    <span class="hero-pill">🔒 100% Secure</span>
+    <span class="hero-pill">🌿 EV Friendly</span>
+    <span class="hero-pill">✅ No Hidden Fees</span>
+  </div>
+</div>
+<div class="container">
+  <div class="cust-card">
+    <div class="ctitle">👤 Customer Details</div>
+    <div class="two-col">
+      <div class="field" style="margin-bottom:0;">
+        <label>Customer name</label>
+        <input class="ibox" type="text" id="cust-name" placeholder="e.g. Ramesh Kumar">
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label>WhatsApp number</label>
+        <input class="ibox" type="number" id="cust-phone" placeholder="e.g. 9876543210">
+      </div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="ctitle">Loan Details</div>
+      <div class="field">
+        <label>Product / battery price (₹)</label>
+        <input class="ibox" type="number" id="price-input" min="2000" max="200000" step="500" value="115000" placeholder="e.g. 115000">
+      </div>
+      <div class="srow">
+        <div class="slbl"><span class="slbl-txt">Adjust price</span><span class="schip" id="price-out">₹1,15,000</span></div>
+        <input type="range" id="price-slider" min="2000" max="200000" step="500" value="115000">
+      </div>
+      <div class="sec-div">down payment</div>
+      <div class="two-col" style="margin-bottom:0.9rem;">
+        <div class="field" style="margin-bottom:0;">
+          <label>Amount (₹)</label>
+          <input class="ibox" type="number" id="down-amt" min="0" value="23000" placeholder="e.g. 23000">
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>Percentage (%)</label>
+          <input class="ibox" type="number" id="down-pct" min="0" max="100" step="1" value="20" placeholder="e.g. 20">
+        </div>
+      </div>
+      <div class="srow">
+        <div class="slbl"><span class="slbl-txt">Down payment</span><span class="schip" id="down-out">20%</span></div>
+        <input type="range" id="down-slider" min="0" max="100" step="1" value="20">
+      </div>
+      <div class="sec-div">interest & tenure</div>
+      <div class="srow">
+        <div class="slbl"><span class="slbl-txt">Interest rate (p.a.)</span><span class="schip" id="rate-out">18%</span></div>
+        <input type="range" id="rate-slider" min="5" max="36" step="1" value="18">
+      </div>
+      <div class="field">
+        <label>Or type interest rate (%)</label>
+        <input class="ibox" type="number" id="rate-input" min="5" max="36" step="1" value="18" placeholder="e.g. 18">
+      </div>
+      <div class="ctitle" style="margin-top:0.5rem;">Select Tenure</div>
+      <div class="trow">
+        <button class="tbtn" data-m="6">6 months</button>
+        <button class="tbtn active" data-m="12">12 months</button>
+        <button class="tbtn" data-m="24">24 months</button>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="card">
+        <div class="ctitle">Loan Summary</div>
+        <div class="emi-hero">
+          <div class="emi-lbl">Monthly EMI</div>
+          <div class="emi-num" id="emi-val">₹8,421</div>
+          <div class="emi-sub" id="emi-sub">for 12 months</div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat"><div class="stat-lbl">You pay now</div><div class="stat-val" id="down-val">₹23,000</div></div>
+          <div class="stat"><div class="stat-lbl">Loan amount</div><div class="stat-val" id="loan-val">₹92,000</div></div>
+          <div class="stat"><div class="stat-lbl">Total interest</div><div class="stat-val" id="int-val">₹9,054</div></div>
+          <div class="stat"><div class="stat-lbl">Total payable</div><div class="stat-val" id="total-val">₹1,01,054</div></div>
+        </div>
+        <div class="count-row">
+          <span class="count-lbl">✅ Total EMIs to pay</span>
+          <span class="count-val" id="emi-count">12 EMIs × ₹8,421</span>
+        </div>
+        <div class="bsec">
+          <div class="bmeta"><span><span class="bdot" style="background:#2A9D5C;"></span>Down payment</span><span style="color:var(--dark);font-weight:500;" id="pct-d">20%</span></div>
+          <div class="bbg"><div class="bfill" id="bar-d" style="background:#2A9D5C;"></div></div>
+        </div>
+        <div class="bsec">
+          <div class="bmeta"><span><span class="bdot" style="background:#1D1D1F;"></span>Principal</span><span style="color:var(--dark);font-weight:500;" id="pct-p">72%</span></div>
+          <div class="bbg"><div class="bfill" id="bar-p" style="background:#1D1D1F;"></div></div>
+        </div>
+        <div class="bsec">
+          <div class="bmeta"><span><span class="bdot" style="background:#AEAEB2;"></span>Interest</span><span style="color:var(--dark);font-weight:500;" id="pct-i">8%</span></div>
+          <div class="bbg"><div class="bfill" id="bar-i" style="background:#AEAEB2;"></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ctitle">EMI Schedule</div>
+        <table>
+          <thead><tr><th>#</th><th>Due date</th><th>Amount</th><th>Status</th></tr></thead>
+          <tbody id="emi-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="wa-section">
+    <div class="wa-title">💬 WhatsApp Share Preview</div>
+    <div class="wa-preview" id="wa-preview">Fill customer name and number above to preview the message...</div>
+    <button class="btn-wa" id="wa-btn">📲 Send EMI Details on WhatsApp</button>
+    <button class="btn-dl" id="dl-btn">⬇️ Download Professional PDF</button>
+  </div>
+</div>
+<footer>
+  <strong>AI Sure Finance</strong> — Powered by AI Sure Power<br>
+  <span style="font-size:11px;margin-top:4px;display:block;">Calculator for indicative purposes only. Final terms subject to credit approval.</span>
+</footer>
+<script>
+const MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+let tenure=12,lock=false;
+const $=id=>document.getElementById(id);
+const fmt=n=>"₹"+Math.round(n).toLocaleString("en-IN");
+function getPrice(){return Math.min(200000,Math.max(2000,parseFloat($("price-input").value)||2000));}
+function getRate(){return Math.min(36,Math.max(5,parseFloat($("rate-input").value)||5));}
+function getDownPct(){return Math.min(100,Math.max(0,parseFloat($("down-pct").value)||0));}
+function calcEMI(p,r,m){if(p<=0)return 0;const mr=r/12/100;if(mr===0)return Math.round(p/m);return Math.round(p*mr*Math.pow(1+mr,m)/(Math.pow(1+mr,m)-1));}
+function buildMsg(d){
+  const name=$("cust-name").value.trim()||"Customer";
+  return "🔋 *AI Sure Finance*\n━━━━━━━━━━━━━━━━\n*EMI Details for "+name+"*\nDate: "+new Date().toLocaleDateString("en-IN")+"\n━━━━━━━━━━━━━━━━\n\n🏷️ *Product Price:* "+fmt(d.price)+"\n💵 *Down Payment ("+d.downPct+"%):* "+fmt(d.downAmt)+"\n💰 *Loan Amount:* "+fmt(d.principal)+"\n📈 *Interest Rate:* "+d.rate+"% p.a.\n📅 *Tenure:* "+d.tenure+" months\n\n━━━━━━━━━━━━━━━━\n💳 *Monthly EMI: "+fmt(d.emi)+"*\n✅ *Total EMIs: "+d.tenure+" instalments*\n💸 *Total Interest: "+fmt(d.totalInterest)+"*\n🧾 *Total Payable: "+fmt(d.grandTotal)+"*\n━━━━━━━━━━━━━━━━\n\n📌 EMI due on *15th of every month*\n\n_AI Sure Finance — Terms subject to approval_";
+}
+function render(){
+  const price=getPrice(),downPct=getDownPct(),rate=getRate();
+  const downAmt=Math.round(price*downPct/100);
+  const principal=Math.max(0,price-downAmt);
+  const emi=calcEMI(principal,rate,tenure);
+  const totalPayable=emi*tenure;
+  const totalInterest=Math.max(0,totalPayable-principal);
+  const grandTotal=downAmt+totalPayable;
+  const dPct=grandTotal>0?Math.round(downAmt/grandTotal*100):0;
+  const pPct=grandTotal>0?Math.round(principal/grandTotal*100):0;
+  const iPct=grandTotal>0?Math.round(totalInterest/grandTotal*100):0;
+  $("price-out").textContent=fmt(price);$("down-out").textContent=downPct+"%";$("rate-out").textContent=rate+"%";
+  $("emi-val").textContent=fmt(emi);$("emi-sub").textContent="for "+tenure+" months";
+  $("down-val").textContent=fmt(downAmt);$("loan-val").textContent=fmt(principal);
+  $("int-val").textContent=fmt(totalInterest);$("total-val").textContent=fmt(grandTotal);
+  $("emi-count").textContent=tenure+" EMIs × "+fmt(emi);
+  $("pct-d").textContent=dPct+"%";$("pct-p").textContent=pPct+"%";$("pct-i").textContent=iPct+"%";
+  $("bar-d").style.width=dPct+"%";$("bar-p").style.width=pPct+"%";$("bar-i").style.width=iPct+"%";
+  if(!lock){lock=true;$("down-amt").value=downAmt;lock=false;}
+  const tbody=$("emi-tbody");tbody.innerHTML="";
+  const now=new Date();let bal=principal;const mr=rate/12/100;
+  for(let i=1;i<=Math.min(tenure,6);i++){
+    const d=new Date(now.getFullYear(),now.getMonth()+i,15);
+    const ds="15 "+MN[d.getMonth()]+" "+d.getFullYear();
+    const intP=Math.round(bal*mr);const prinP=Math.min(emi-intP,bal);bal=Math.max(0,bal-prinP);
+    const badge=i===1?'<span class="badge b-up">Upcoming</span>':'<span class="badge b-pend">Pending</span>';
+    tbody.innerHTML+="<tr><td style='font-weight:500;'>"+i+"</td><td>"+ds+"</td><td style='font-weight:500;'>"+fmt(emi)+"</td><td>"+badge+"</td></tr>";
+  }
+  if(tenure>6)tbody.innerHTML+="<tr><td colspan='4' style='color:var(--mid);font-size:11px;padding:9px 7px;font-style:italic;'>+"+( tenure-6)+" more EMIs of "+fmt(emi)+" each</td></tr>";
+  window._d={price,downPct,downAmt,rate,principal,emi,totalInterest,grandTotal,tenure};
+  $("wa-preview").textContent=buildMsg(window._d);
+}
+function syncFromPct(){if(lock)return;lock=true;const p=getPrice(),pct=getDownPct();$("down-amt").value=Math.round(p*pct/100);$("down-slider").value=pct;$("down-out").textContent=pct+"%";lock=false;render();}
+function syncFromAmt(){if(lock)return;lock=true;const p=getPrice();const a=Math.min(p,Math.max(0,parseFloat($("down-amt").value)||0));const pct=p>0?Math.round(a/p*100):0;$("down-pct").value=pct;$("down-slider").value=pct;$("down-out").textContent=pct+"%";lock=false;render();}
+$("price-input").addEventListener("input",function(){$("price-slider").value=Math.min(200000,Math.max(2000,parseFloat(this.value)||2000));syncFromPct();});
+$("price-slider").addEventListener("input",function(){$("price-input").value=this.value;$("price-out").textContent=fmt(+this.value);syncFromPct();});
+$("down-pct").addEventListener("input",syncFromPct);
+$("down-amt").addEventListener("input",syncFromAmt);
+$("down-slider").addEventListener("input",function(){$("down-pct").value=this.value;syncFromPct();});
+$("rate-slider").addEventListener("input",function(){$("rate-input").value=this.value;$("rate-out").textContent=this.value+"%";render();});
+$("rate-input").addEventListener("input",function(){const v=Math.min(36,Math.max(5,parseFloat(this.value)||5));$("rate-slider").value=v;$("rate-out").textContent=v+"%";render();});
+document.querySelectorAll(".tbtn").forEach(btn=>{btn.addEventListener("click",function(){document.querySelectorAll(".tbtn").forEach(b=>b.classList.remove("active"));this.classList.add("active");tenure=+this.dataset.m;render();});});
+$("cust-name").addEventListener("input",function(){if(window._d)$("wa-preview").textContent=buildMsg(window._d);});
+$("cust-phone").addEventListener("input",function(){if(window._d)$("wa-preview").textContent=buildMsg(window._d);});
+$("wa-btn").addEventListener("click",function(){
+  const phone=$("cust-phone").value.trim();
+  const d=window._d;if(!d)return;
+  const msg=encodeURIComponent(buildMsg(d));
+  if(phone&&phone.length>=10){window.open("https://wa.me/91"+phone+"?text="+msg,"_blank");}
+  else{window.open("https://wa.me/?text="+msg,"_blank");}
+});
+$("dl-btn").addEventListener("click",function(){
+  const d=window._d;if(!d)return;
+  const name=$("cust-name").value.trim()||"Customer";
+  const phone=$("cust-phone").value.trim()||"—";
+  try{
+    const {jsPDF}=window.jspdf;
+    const doc=new jsPDF({unit:"mm",format:"a4"});
+    const W=210,H=297;
+    /* ── HEADER BAR ── */
+    doc.setFillColor(29,29,31);
+    doc.rect(0,0,W,52,"F");
+    /* green accent stripe */
+    doc.setFillColor(42,157,92);
+    doc.rect(0,52,W,3,"F");
+    /* logo circle */
+    doc.setFillColor(42,157,92);
+    doc.circle(22,26,10,"F");
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(13);doc.setFont(undefined,"bold");
+    doc.text("ASF",22,29.5,{align:"center"});
+    /* brand */
+    doc.setFontSize(20);doc.setFont(undefined,"bold");
+    doc.setTextColor(245,245,247);
+    doc.text("AI Sure Finance",36,22);
+    doc.setFontSize(9);doc.setFont(undefined,"normal");
+    doc.setTextColor(134,134,139);
+    doc.text("POWERED BY AI SURE POWER",36,30);
+    /* right side doc info */
+    doc.setFontSize(9);doc.setTextColor(134,134,139);
+    doc.text("EMI PAYMENT SCHEDULE",W-15,20,{align:"right"});
+    doc.setFontSize(8);
+    doc.text("Date: "+new Date().toLocaleDateString("en-IN"),W-15,28,{align:"right"});
+    doc.text("Ref: ASF-"+Date.now().toString().slice(-6),W-15,35,{align:"right"});
+
+    /* ── CUSTOMER + LOAN SUMMARY SIDE BY SIDE ── */
+    let y=65;
+    /* left box: customer info */
+    doc.setFillColor(245,245,247);
+    doc.roundedRect(12,y,88,42,3,3,"F");
+    doc.setFontSize(8);doc.setFont(undefined,"bold");doc.setTextColor(42,157,92);
+    doc.text("CUSTOMER DETAILS",18,y+8);
+    doc.setDrawColor(42,157,92);doc.setLineWidth(0.3);
+    doc.line(18,y+10,55,y+10);
+    doc.setFont(undefined,"normal");doc.setTextColor(100,100,100);doc.setFontSize(8);
+    doc.text("Name",18,y+18);doc.text("Phone",18,y+26);doc.text("Date",18,y+34);
+    doc.setFont(undefined,"bold");doc.setTextColor(29,29,31);
+    doc.text(name,50,y+18);
+    doc.text(phone,50,y+26);
+    doc.text(new Date().toLocaleDateString("en-IN"),50,y+34);
+
+    /* right box: loan overview */
+    doc.setFillColor(245,245,247);
+    doc.roundedRect(108,y,90,42,3,3,"F");
+    doc.setFontSize(8);doc.setFont(undefined,"bold");doc.setTextColor(42,157,92);
+    doc.text("LOAN OVERVIEW",114,y+8);
+    doc.setDrawColor(42,157,92);doc.line(114,y+10,155,y+10);
+    doc.setFont(undefined,"normal");doc.setTextColor(100,100,100);
+    doc.text("Product Price",114,y+18);doc.text("Down Payment",114,y+26);doc.text("Loan Amount",114,y+34);
+    doc.setFont(undefined,"bold");doc.setTextColor(29,29,31);
+    doc.text(fmt(d.price),190,y+18,{align:"right"});
+    doc.text(fmt(d.downAmt)+" ("+d.downPct+"%)",190,y+26,{align:"right"});
+    doc.text(fmt(d.principal),190,y+34,{align:"right"});
+
+    y+=52;
+
+    /* ── EMI HIGHLIGHT BAND ── */
+    doc.setFillColor(29,29,31);
+    doc.roundedRect(12,y,186,28,3,3,"F");
+    doc.setFontSize(9);doc.setFont(undefined,"normal");doc.setTextColor(134,134,139);
+    doc.text("MONTHLY EMI",30,y+9);doc.text("TOTAL PAYABLE",85,y+9);doc.text("TOTAL INTEREST",148,y+9);
+    doc.setFontSize(14);doc.setFont(undefined,"bold");doc.setTextColor(255,255,255);
+    doc.text(fmt(d.emi),30,y+21);
+    doc.setTextColor(42,157,92);
+    doc.text(fmt(d.grandTotal),85,y+21);
+    doc.setTextColor(174,174,178);
+    doc.text(fmt(d.totalInterest),148,y+21);
+
+    y+=38;
+
+    /* ── LOAN TERMS ROW ── */
+    doc.setFillColor(232,248,240);
+    doc.roundedRect(12,y,186,16,3,3,"F");
+    doc.setFontSize(8);doc.setFont(undefined,"normal");doc.setTextColor(26,122,66);
+    doc.text("Interest Rate: "+d.rate+"% p.a.",20,y+10);
+    doc.text("Tenure: "+d.tenure+" months",80,y+10);
+    doc.text("Total EMIs: "+d.tenure+" instalments",140,y+10);
+
+    y+=26;
+
+    /* ── EMI TABLE HEADER ── */
+    doc.setFontSize(9);doc.setFont(undefined,"bold");doc.setTextColor(29,29,31);
+    doc.text("REPAYMENT SCHEDULE",12,y);
+    doc.setDrawColor(42,157,92);doc.setLineWidth(0.4);
+    doc.line(12,y+3,198,y+3);
+    y+=10;
+
+    /* table col headers */
+    const cols=[["#",12,10],["Due Date",22,32],["EMI Amount",60,30],["Principal",96,28],["Interest",130,26],["Balance",162,30]];
+    doc.setFillColor(29,29,31);
+    doc.rect(12,y-5,186,10,"F");
+    doc.setFontSize(8);doc.setFont(undefined,"bold");doc.setTextColor(255,255,255);
+    cols.forEach(c=>doc.text(c[0],c[1],y+0.5));
+    y+=8;
+
+    /* table rows */
+    const mr=d.rate/12/100;let bal=d.principal;
+    for(let i=1;i<=d.tenure;i++){
+      const dt=new Date(new Date().getFullYear(),new Date().getMonth()+i,15);
+      const ds="15 "+MN[dt.getMonth()]+" "+dt.getFullYear();
+      const intP=Math.round(bal*mr);
+      const prinP=Math.min(d.emi-intP,bal);
+      bal=Math.max(0,bal-prinP);
+      /* alternating rows */
+      if(i%2===0){doc.setFillColor(245,245,247);doc.rect(12,y-4,186,8,"F");}
+      doc.setFontSize(8);doc.setFont(undefined,i===1?"bold":"normal");
+      doc.setTextColor(i===1?42:80,i===1?157:80,i===1?92:80);
+      doc.text(String(i),cols[0][1],y+0.5);
+      doc.setTextColor(29,29,31);
+      doc.text(ds,cols[1][1],y+0.5);
+      doc.setFont(undefined,"bold");
+      doc.text(fmt(d.emi),cols[2][1],y+0.5);
+      doc.setFont(undefined,"normal");doc.setTextColor(80,80,80);
+      doc.text(fmt(prinP),cols[3][1],y+0.5);
+      doc.text(fmt(intP),cols[4][1],y+0.5);
+      doc.setTextColor(29,29,31);doc.setFont(undefined,"bold");
+      doc.text(fmt(bal),cols[5][1],y+0.5);
+      y+=8;
+      if(y>270){
+        doc.addPage();
+        y=20;
+        /* repeat header on new page */
+        doc.setFillColor(29,29,31);doc.rect(12,y-5,186,10,"F");
+        doc.setFontSize(8);doc.setFont(undefined,"bold");doc.setTextColor(255,255,255);
+        cols.forEach(c=>doc.text(c[0],c[1],y+0.5));
+        y+=8;
+      }
+    }
+
+    /* ── FOOTER ── */
+    doc.setFillColor(29,29,31);doc.rect(0,H-18,W,18,"F");
+    doc.setFillColor(42,157,92);doc.rect(0,H-18,W,1.5,"F");
+    doc.setFontSize(7);doc.setFont(undefined,"normal");doc.setTextColor(134,134,139);
+    doc.text("AI Sure Finance  |  Powered by AI Sure Power  |  Computer Generated Document",W/2,H-10,{align:"center"});
+    doc.text("Terms and EMI amounts are indicative. Final terms subject to credit approval.",W/2,H-5,{align:"center"});
+
+    doc.save("AI_Sure_Finance_"+name.replace(/\s+/g,"_")+"_EMI.pdf");
+  }catch(e){alert("PDF failed: "+e.message);}
+});
+render();
+</script>
+</body>
+</html>
